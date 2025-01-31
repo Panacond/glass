@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Температурні навантаження</title>
+  <!-- Подключаем MathJax для рендеринга формул -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"]], // Настройка для inline формул
+        displayMath: [["$$", "$$"]], // Настройка для дисплейных формул
+      },
+      startup: {
+        typeset: false, // Отключаем автоматический рендеринг при загрузке страницы
+      },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+  <!-- <script src="./mathjax.js"></script> -->
+  <!-- <script src="./tex-mml-chtml.js"></script> -->
+  <!-- Подключаем Vue.js -->
+  <script src="https://unpkg.com/vue@3"></script>
+  <!-- <script src="./vue.global.js"></script> -->
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="app">
+    <div class="page">
+      <h1>Температурні навантаження на склопакети</h1>
+      <p>
+        Вид склопакету:
+        <select v-model="window">
+          <option disabled value="">Виберіть тип</option>
+          <option>однокамерний</option>
+          <option>двокамерний</option>
+        </select>
+      </p>
+      <h3>Розрахунок температури у камерах склопакетів</h3>
+      <div class="form-group">
+        <label for="T_out">Вулична температура:</label>
+        <input type="number" v-model="T_out" id="T_out" min="0" step="1" />
+      </div>
+      <div class="form-group">
+        <label for="T_ins">Температура всередині приміщення:</label>
+        <input type="number" v-model="T_ins" id="T_ins" min="0" step="1" />
+      </div>
+
+      <div id="one" v-if="window == 'однокамерний'">
+        <p>Температура в повітряному прошарку однокамерного склопакета</p>
+        <p>
+          $$T_{cam}=0.4 \times T_{ins} + (1-0.4) \times T_{out} = 0.4 \times
+          {{T_ins}} + (1-0.4) \times ({{T_out}}) =
+          {{T_cam=0.4*T_ins+0.6*T_out}}$$
+        </p>
+      </div>
+      <div id="two" v-if="window == 'двокамерний'">
+        <p>Температура в повітряних прошарках двокамерного склопакета</p>
+        <p>Температура зовнішньої камери:</p>
+        <p>
+          $$T_{Ocam}=0.25 \times T_{ins} + (1-0.25) \times T_{out} = 0.25
+          \times {{T_ins}} + (1-0.25) \times ({{T_out}}) =
+          {{T_Ocam=0.25*T_ins+0.75*T_out}}$$
+        </p>
+        <p>Температура внутрішньої камери:</p>
+        <p>
+          $$T_{Icam}=0.4 \times T_{ins} + (1-0.4) \times T_{Ocam} = 0.4 \times
+          {{T_ins}} + (1-0.4) \times ({{T_Ocam}}) =
+          {{T_Icam=0.4*T_ins+0.6*T_Ocam}}$$
+        </p>
+      </div>
+      <div id="made"></div>
+      <div class="form-group">
+        <label for="T_m">Температура виготовлення склопакета:</label>
+        <input type="number" v-model="T_m" id="T_m" min="0" step="1" />
+        <div id="pressure one" v-if="window == 'однокамерний'">
+          <p>
+            У разі нормальних атмосферних показників під час виготовлення
+            пакета та температури усередині склопакету можна обчислити за
+            формулою:
+          </p>
+          <p>
+            $$P_d=0.34 \times \frac{kN}{m^2} \times(T_m-T_{cam})= 0.34 \times
+            \frac{kN}{m^2} \times( {{T_m}} - {{T_cam}})=
+            {{P_d=round(0.34*(T_m-T_cam)*1000)}}Pa$$
+          </p>
+        </div>
+        <div id="pressure two" v-if="window == 'двокамерний'">
+          <p>
+            У разі нормальних атмосферних показників під час виготовлення
+            пакета та температури усередині склопакету можна обчислити за
+            формулою:
+          </p>
+          <p>Температура зовнішньої камери:</p>
+          <p>
+            $$P_{d1}=0.34 \times \frac{kN}{m^2} \times(T_m-T_{Ocam})= 0.34
+            \times \frac{kN}{m^2} \times( {{T_m}} - {{T_Ocam}})=
+            {{P_d=round(0.34*(T_m-T_Ocam)*1000)}}Pa$$
+          </p>
+          <p>Температура внутрішньої камери:</p>
+          <p>
+            $$P_{d2}=0.34 \times \frac{kN}{m^2} \times(T_m-T_{Icam})= 0.34
+            \times \frac{kN}{m^2} \times( {{T_m}} - {{T_Icam}})=
+            {{P_d=round(0.34*(T_m-T_Icam)*1000)}}Pa$$
+          </p>
+        </div>
+      </div>
+      <div id="dimention">
+        <div class="form-group">
+          <label for="a">Короткий бік склопакета:</label>
+          <input type="number" v-model="a" id="a" min="0" step="1" />мм
+        </div>
+        <div class="form-group">
+          <label for="b">Довга сторона склопакета:</label>
+          <input type="number" v-model="b" id="b" min="0" step="1" />мм
+        </div>
+        <table>
+          <caption>
+            Коефіцієнти для розрахунку рівномірно навантажених прямокутних
+            пластинок з вільно опертими краями
+          </caption>
+          <thead>
+            <tr class="row">
+              <th class="col">$ a/b$</th>
+              <th v-for="item in xValues">{{ item }}</th>
+            </tr>
+          </thead>
+          <tr class="row">
+            <th class="col">$ Bv $</th>
+            <td v-for="item in Bv" style="writing-mode: horizontal-tb">
+              {{ item }}
+            </td>
+          </tr>
+        </table>
+        <p>
+          При відношенні сторін a/b={{a}}/{{b}} ={{round(a/b)}}
+          <b>Bv = {{Bv_v}}</b>
+        </p>
+      </div>
+      <div id="thickness one" v-if="window == 'однокамерний'">
+        <div class="form-group">
+          <label for="d_a">Товщина зовнішнього скла повітряного прошарку:</label>
+          <input type="number" v-model="d_a" id="d_a" min="0" step="0.1" />мм
+        </div>
+        <div class="form-group">
+          <label for="d_i">Товщина внутрішнього скла повітряного прошарку:</label>
+          <input type="number" v-model="d_i" id="d_i" min="0" step="0.1" />мм
+        </div>
+        <div class="form-group">
+          <label for="d_szr">Товщина повітряного прошарку:</label>
+          <input type="number" v-model="d_szr" id="d_szr" min="0" step="1" />мм
+        </div>
+      </div>
+      <div id="interlayer" v-if="window == 'однокамерний'">
+        <p>Характеристична довжина кромки склопакета:</p>
+        <p>
+          $$a_c=28.9 \times \sqrt[4]{ \frac{ d_{szr} \times d_a^3 \times d_i^3
+          }{ (d_a^3+d_i^3)\times B_v } } = =28.9 \times \sqrt[4]{ \frac{
+          {{d_szr}} \times {{d_a}}^3 \times {{d_i}}^3 }{ ( {{d_a}}^3+
+          {{d_i}}^3)\times {{Bv_v}} } } = {{a_c}}мм $$
+        </p>
+        <p>
+          Безрозмірний коефіцієнт фактора впливу кліматичних навантажень скла
+          склопакета:
+        </p>
+        <p>
+          $$\varphi= \frac{1}{1+ \left( \frac{a}{a_c} \right)^4 } =
+          \frac{1}{1+ \left( \frac{ {{a}} }{ {{a_c}} } \right)^4 } =
+          {{varphi=Math.round( 1/(1+(a/a_c)**4)*10**4 )/10**4 }} $$
+        </p>
+        <p>
+          Кліматичні навантаження у просторі між стеками діють однаково на
+          внутрішні та зовнішні окремі стекла і відповідають деформаційній
+          частині ізохорного тиску, і для прямокутного звичайного пакета
+          розраховують за формулою:
+        </p>
+        <p>
+          $$P= \varphi \times P_d = {{varphi}} \times {{P_d}} =
+          {{P=round(varphi*P_d)}} Pa$$
+        </p>
+      </div>
+    </div>
+    <div class="page" v-if="window == 'двокамерний'">
+
+      <div id="thickness two" v-if="window == 'двокамерний'">
+        <div class="form-group">
+          <label for="d_a">Товщина зовнішнього скла:</label>
+          <input type="number" v-model="d_a" id="d_a" min="0" step="0.1" />мм
+        </div>
+        <div class="form-group">
+          <label for="d_m">Товщина середнього скла :</label>
+          <input type="number" v-model="d_m" id="d_m" min="0" step="0.1" />мм
+        </div>
+        <div class="form-group">
+          <label for="d_i">Товщина внутрішнього скла :</label>
+          <input type="number" v-model="d_i" id="d_i" min="0" step="0.1" />мм
+        </div>
+        <div class="form-group">
+          <label for="d_szr1">Товщина зовнішнього повітряного прошарку:</label>
+          <input type="number" v-model="d_szr1" id="d_szr" min="0" step="1" />мм
+        </div>
+        <div class="form-group">
+          <label for="d_szr2">Товщина внутрішнього повітряного прошарку:</label>
+          <input type="number" v-model="d_szr2" id="d_szr" min="0" step="1" />мм
+        </div>
+      </div>
+      <div id="interlayer two" v-if="window == 'двокамерний'">
+        <h4>Характеристична довжина кромки склопакета для зовнішньої камери:</h4>
+        <p>
+          $$a_{c1}=28.9 \times \sqrt[4]{ \frac{ d_{szr1} \times d_a^3 \times d_m^3
+          }{ (d_a^3+d_m^3)\times B_v } } =28.9 \times \sqrt[4]{ \frac{
+          {{d_szr1}} \times {{d_a}}^3 \times {{d_m}}^3 }{ ( {{d_a}}^3+
+          {{d_m}}^3)\times {{Bv_v}} } } = {{a_c1}}мм $$
+        </p>
+        <p>
+          Безрозмірний коефіцієнт фактора впливу кліматичних навантажень скла
+          склопакета:
+        </p>
+        <p>
+          $$\varphi= \frac{1}{1+ \left( \frac{a}{a_{c1}} \right)^4 } =
+          \frac{1}{1+ \left( \frac{ {{a}} }{ {{a_c1}} } \right)^4 } =
+          {{varphi=Math.round( 1/(1+(a/a_c1)**4)*10**4 )/10**4 }} $$
+        </p>
+        <p>
+          Кліматичні навантаження у просторі між стеками діють однаково на
+          внутрішні та зовнішні окремі стекла і відповідають деформаційній
+          частині ізохорного тиску, і для прямокутного звичайного пакета
+          розраховують за формулою:
+        </p>
+        <p>
+          $$P= \varphi \times P_d = {{varphi}} \times {{P_d}} =
+          {{P=round(varphi*P_d)}} Pa$$
+        </p>
+        <div id="interlayer two two">
+          <h4>Характеристична довжина кромки склопакета для внутрішньої камери:</h4>
+          <p>
+            $$a_{c2}=28.9 \times \sqrt[4]{ \frac{ d_{szr2} \times d_m^3 \times d_i^3
+            }{ (d_m^3+d_i^3)\times B_v } } =28.9 \times \sqrt[4]{ \frac{
+            {{d_szr2}} \times {{d_m}}^3 \times {{d_i}}^3 }{ ( {{d_m}}^3+
+            {{d_i}}^3)\times {{Bv_v}} } } = {{a_c2}}мм $$
+          </p>
+          <p>
+            Безрозмірний коефіцієнт фактора впливу кліматичних навантажень скла
+            склопакета:
+          </p>
+          <p>
+            $$\varphi= \frac{1}{1+ \left( \frac{a}{a_{c2}} \right)^4 } =
+            \frac{1}{1+ \left( \frac{ {{a}} }{ {{a_c2}} } \right)^4 } =
+            {{varphi=Math.round( 1/(1+(a/a_c)**4)*10**4 )/10**4 }} $$
+          </p>
+          <p>
+            Кліматичні навантаження у просторі між стеками діють однаково на
+            внутрішні та зовнішні окремі стекла і відповідають деформаційній
+            частині ізохорного тиску, і для прямокутного звичайного пакета
+            розраховують за формулою:
+          </p>
+          <p>
+            $$P= \varphi \times P_d = {{varphi}} \times {{P_d}} =
+            {{P=round(varphi*P_d)}} Pa$$
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            window: "однокамерний",
+            window2: "двокамерний",
+            T_out: -20,
+            T_ins: 20,
+            T_m: 18,
+            a: 1200,
+            b: 2400,
+            d_a: 8,
+            d_m: 4,
+            d_i: 6,
+            d_szr: 12,
+            d_szr1: 14,
+            d_szr2: 10,
+            xValues: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            Bv: [
+              0.0857, 0.0767, 0.0676, 0.587, 0.0501, 0.421, 0.035, 0.288,
+              0.0237, 0.0194,
+            ],
+
+            P: 120, // Нагрузка
+            L_1: 270, // Плечо под нагрузкой
+          };
+        },
+        mounted() {
+          // Ждем пока MathJax загрузится
+          this.renderMath();
+        },
+        updated() {
+          // Перерендериваем формулы при обновлении данных
+          this.renderMath();
+        },
+        computed: {
+          Bv_v() {
+            return (
+              Math.round(
+                this.interpolate(this.a / this.b, this.xValues, this.Bv) *
+                10 ** 4
+              ) /
+              10 ** 4
+            );
+          },
+          a_c() {
+            return this.round(
+              28.9 *
+              ((this.d_szr * this.d_a ** 3 * this.d_i ** 3) /
+                (this.d_a ** 3 + this.d_i ** 3) /
+                this.Bv_v) **
+              (1 / 4)
+            );
+          },
+          a_c1() {
+            return this.round(
+              28.9 *
+              ((this.d_szr1 * this.d_a ** 3 * this.d_m ** 3) /
+                (this.d_a ** 3 + this.d_m ** 3) /
+                this.Bv_v) **
+              (1 / 4)
+            );
+          },
+          a_c2() {
+            return this.round(
+              28.9 *
+              ((this.d_szr2 * this.d_m ** 3 * this.d_i ** 3) /
+                (this.d_m ** 3 + this.d_i ** 3) /
+                this.Bv_v) **
+              (1 / 4)
+            );
+          },
+        },
+        methods: {
+          round(a) {
+            return Math.round(a * 100) / 100;
+          },
+          renderMath() {
+            MathJax.typesetPromise();
+          },
+          interpolate(x, xValues, yValues) {
+            if (xValues.length !== yValues.length) {
+              throw new Error("Списки x и y должны быть одинаковой длины.");
+            }
+
+            // Если x меньше минимального значения в xValues, вернуть первое значение yValues
+            if (x < xValues[0]) {
+              return yValues[0];
+            }
+
+            // Если x больше максимального значения в xValues, вернуть последнее значение yValues
+            if (x > xValues[xValues.length - 1]) {
+              return yValues[yValues.length - 1];
+            }
+
+            // Линейная интерполяция
+            for (let i = 1; i < xValues.length; i++) {
+              if (xValues[i - 1] <= x && x <= xValues[i]) {
+                const y =
+                  yValues[i - 1] +
+                  ((yValues[i] - yValues[i - 1]) * (x - xValues[i - 1])) /
+                  (xValues[i] - xValues[i - 1]);
+                return y;
+              }
+            }
+
+            throw new Error("Значение x не удалось интерполировать.");
+          },
+        },
+      });
+
+      app.mount("#app");
+    </script>
+</body>
+
+</html>

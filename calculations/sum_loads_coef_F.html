@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Збір навантаження на скло</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["$", "$"]],
+          displayMath: [["$$", "$$"]],
+        },
+        startup: {
+          typeset: false,
+        },
+      };
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+      async
+    ></script>
+    <!-- <script src="./mathjax.js"></script> -->
+    <!-- <script src="./tex-mml-chtml.js"></script> -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- <script src="./vue.global.js"></script> -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="page">
+        <h1>Збір навантажень на скло</h1>
+
+        <!-- Первый компонент расчета -->
+        <load-calculator
+          title="Розрахункове навантаження складається зі:"
+          @result-updated="updateResult1"
+        ></load-calculator>
+
+        <!-- Второй компонент расчета -->
+        <load-calculator
+          title="Експлуатаційне навантаження складається зі:"
+          @result-updated="updateResult2"
+        ></load-calculator>
+
+        <!-- Компонент для коэффициента, который будет умножать оба результата -->
+        <coefficient-calculator
+          title="Навантаження на зовнішне скло з урахуванням коефіцієнта розподілу навантажень"
+          :result1="result1"
+          :result2="result2"
+        >
+        </coefficient-calculator>
+        <coefficient-calculator
+          title="Навантаження на середнє скло з урахуванням коефіцієнта розподілу навантажень"
+          :result1="result1"
+          :result2="result2"
+        >
+        </coefficient-calculator>
+        <coefficient-calculator
+        title="Навантаження на внутрішне скло з урахуванням коефіцієнта розподілу навантажень"
+        :result1="result1"
+        :result2="result2"
+      >
+      </coefficient-calculator>
+      </div>
+    </div>
+
+    <template id="load-calculator-template">
+      <div>
+        <h2>{{ title }}</h2>
+        <load-item
+          v-for="(item, index) in loads"
+          :key="item.id"
+          :title="item.title"
+          :value="item.value"
+          @update-title="updateTitle(index, $event)"
+          @update-value="updateValue(index, $event)"
+          @remove="removeLoad(index)"
+        >
+        </load-item>
+        <button @click="addLoad">+</button>
+        <h3>Сумарне навантаження складе:</h3>
+        <h4>{{ calculationString }}</h4>
+      </div>
+    </template>
+
+    <template id="load-item-template">
+      <div>
+        <input
+          style="width: 8cm"
+          type="text"
+          :value="title"
+          @input="$emit('update-title', $event.target.value)"
+          placeholder="Название нагрузки"
+        />
+        <input
+          style="text-align: center"
+          type="number"
+          :value="value"
+          @input="$emit('update-value', +$event.target.value)"
+          placeholder="Значение нагрузки"
+        />
+        <button @click="$emit('remove')">-</button>
+      </div>
+    </template>
+
+    <template id="coefficient-calculator-template">
+      <div>
+        <h4>{{ title }}</h4>
+        <p>
+          Коефіцієнт зменшення навантаження на скло в пакеті:
+          <input
+            type="number"
+            v-model="coefficient"
+            placeholder="Введите коэффициент"
+            step=""
+          />
+        </p>
+        <div v-if="result1 >= 0">
+          <p>
+            Розрахункове навантаження: ${{ result1 }} × {{ coefficient }} = {{
+            adjustedResult1 }}$
+          </p>
+        </div>
+        <div v-if="result2 >= 0">
+          <p>
+            Експлуатаційне навантаження: ${{ result2 }} × {{ coefficient }} = {{
+            adjustedResult2 }}$
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <script>
+      // Компонент LoadItem
+      const LoadItem = {
+        template: "#load-item-template",
+        props: {
+          title: String,
+          value: Number,
+        },
+        emits: ["update-title", "update-value", "remove"],
+      };
+
+      // Компонент LoadCalculator
+      const LoadCalculator = {
+        template: "#load-calculator-template",
+        components: { LoadItem },
+        props: {
+          title: String,
+        },
+        data() {
+          return {
+            loads: [
+              { id: 1, title: "Снеговая нагрузка", value: 1767 },
+              { id: 2, title: "Вес пакета", value: 700 },
+              { id: 3, title: "Вес профиля", value: 28 },
+            ],
+          };
+        },
+        computed: {
+          totalLoad() {
+            return this.loads.reduce((sum, load) => sum + load.value, 0);
+          },
+          calculationString() {
+            const values = this.loads.map((load) => load.value).join(" + ");
+            return values ? `${values} = ${this.totalLoad}` : "Нет нагрузок";
+          },
+        },
+        methods: {
+          addLoad() {
+            this.loads.push({
+              id: Date.now(),
+              title: "Новая нагрузка",
+              value: 0,
+            });
+          },
+          removeLoad(index) {
+            this.loads.splice(index, 1);
+          },
+          updateTitle(index, newTitle) {
+            this.loads[index].title = newTitle;
+          },
+          updateValue(index, newValue) {
+            this.loads[index].value = newValue;
+            this.$emit("result-updated", this.totalLoad);
+          },
+        },
+        watch: {
+          totalLoad(newTotal) {
+            this.$emit("result-updated", newTotal);
+          },
+        },
+        mounted() {
+          this.$emit("result-updated", this.totalLoad); // Обновляем начальное значение
+        },
+      };
+
+      // Компонент CoefficientCalculator
+      const CoefficientCalculator = {
+        template: "#coefficient-calculator-template",
+        props: {
+          title: String,
+          result1: {
+            type: Number,
+            required: true,
+          },
+          result2: {
+            type: Number,
+            required: true,
+          },
+        },
+        data() {
+          return {
+            coefficient: 1,
+          };
+        },
+        mounted() {
+          // Ждем пока MathJax загрузится
+          this.renderMath();
+        },
+        updated() {
+          // Перерендериваем формулы при обновлении данных
+          this.renderMath();
+        },
+        methods: {
+          renderMath() {
+            MathJax.typesetPromise();
+          },
+        },
+        computed: {
+          adjustedResult1() {
+            return (this.result1 * this.coefficient).toFixed(2);
+          },
+          adjustedResult2() {
+            return (this.result2 * this.coefficient).toFixed(2);
+          },
+        },
+      };
+
+      const app = Vue.createApp({
+        components: { LoadCalculator, CoefficientCalculator },
+        data() {
+          return {
+            result1: 0,
+            result2: 0,
+          };
+        },
+        mounted() {
+          // Ждем пока MathJax загрузится
+          this.renderMath();
+        },
+        updated() {
+          // Перерендериваем формулы при обновлении данных
+          this.renderMath();
+        },
+        computed: {},
+        methods: {
+          updateResult1(newResult) {
+            this.result1 = newResult;
+          },
+          updateResult2(newResult) {
+            this.result2 = newResult;
+          },
+
+          round(a) {
+            return Math.round(a * 100) / 100;
+          },
+
+          interpolate(x, xValues, yValues) {
+            if (xValues.length !== yValues.length) {
+              throw new Error("Списки x и y должны быть одинаковой длины.");
+            }
+
+            // Если x меньше минимального значения в xValues, вернуть первое значение yValues
+            if (x < xValues[0]) {
+              return yValues[0];
+            }
+
+            // Если x больше максимального значения в xValues, вернуть последнее значение yValues
+            if (x > xValues[xValues.length - 1]) {
+              return yValues[yValues.length - 1];
+            }
+
+            // Линейная интерполяция
+            for (let i = 1; i < xValues.length; i++) {
+              if (xValues[i - 1] <= x && x <= xValues[i]) {
+                const y =
+                  yValues[i - 1] +
+                  ((yValues[i] - yValues[i - 1]) * (x - xValues[i - 1])) /
+                    (xValues[i] - xValues[i - 1]);
+                return y;
+              }
+            }
+            throw new Error("Значение x не удалось интерполировать.");
+          },
+
+          renderMath() {
+            MathJax.typesetPromise();
+          },
+        },
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>

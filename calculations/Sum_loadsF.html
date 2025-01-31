@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Збір навантаженн</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["$", "$"]],
+          displayMath: [["$$", "$$"]],
+        },
+        startup: {
+          typeset: false,
+        },
+      };
+    </script>
+
+    <!-- <script src="./mathjax.js"></script> -->
+    <!-- <script src="./tex-mml-chtml.js"></script> -->
+    <script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    async
+  ></script>
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- <script src="./vue.global.js"></script> -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="page">
+        <h1>Збір навантажень на погонний метр ригеля:</h1>
+        <load-calculator
+          title="Розрахункове навантаження складається зі:"
+        ></load-calculator>
+        <load-calculator
+          title="Експлуатаційне навантаження складається зі:"
+        ></load-calculator>
+      </div>
+    </div>
+
+    <template id="load-calculator-template">
+      <div>
+        <h2>{{ title }}</h2>
+        <load-item
+          v-for="(item, index) in loads"
+          :key="item.id"
+          :title="item.title"
+          :value="item.value"
+          @update-title="updateTitle(index, $event)"
+          @update-value="updateValue(index, $event)"
+          @remove="removeLoad(index)"
+        >
+        </load-item>
+        <button @click="addLoad">+</button>
+        <h3>Сумарне навантаження складе:</h3>
+        <p>{{ calculationString }}</p>
+      </div>
+    </template>
+
+    <template id="load-item-template">
+      <div>
+        <input
+          style="width: 8cm"
+          type="text"
+          :value="title"
+          @input="$emit('update-title', $event.target.value)"
+          placeholder="Название нагрузки"
+        />
+        <input
+        style="text-align: center"
+          type="number"
+          :value="value"
+          @input="$emit('update-value', +$event.target.value)"
+          placeholder="Значение нагрузки"
+        />
+        <button @click="$emit('remove')">-</button>
+      </div>
+    </template>
+    <script>
+      // Компонент LoadItem
+      const LoadItem = {
+        template: "#load-item-template",
+        props: {
+          title: String,
+          value: Number,
+        },
+        emits: ["update-title", "update-value", "remove"],
+      };
+
+      // Компонент LoadCalculator
+      const LoadCalculator = {
+        template: "#load-calculator-template",
+        components: { LoadItem },
+        props: {
+          title: String,
+        },
+        data() {
+          return {
+            loads: [
+              { id: 1, title: "Cнігове навантаження", value: 1767 },
+              { id: 2, title: "Вега пакета", value: 700 },
+            ],
+          };
+        },
+        computed: {
+          totalLoad() {
+            return this.loads.reduce((sum, load) => sum + load.value, 0);
+          },
+          calculationString() {
+            const values = this.loads.map((load) => load.value).join(" + ");
+            return values
+              ? `${values} = ${this.totalLoad}`
+              : "Нет нагрузок";
+          },
+        },
+        methods: {
+          addLoad() {
+            this.loads.push({
+              id: Date.now(),
+              title: "Новая нагрузка",
+              value: 0,
+            });
+          },
+          removeLoad(index) {
+            this.loads.splice(index, 1);
+          },
+          updateTitle(index, newTitle) {
+            this.loads[index].title = newTitle;
+          },
+          updateValue(index, newValue) {
+            this.loads[index].value = newValue;
+          },
+        },
+      };
+
+      const app = Vue.createApp({
+        data() {
+          return {};
+        },
+        mounted() {
+          // Ждем пока MathJax загрузится
+          this.renderMath();
+        },
+        updated() {
+          // Перерендериваем формулы при обновлении данных
+          this.renderMath();
+        },
+        computed: {},
+        components: { LoadCalculator },
+        methods: {
+          round(a) {
+            return Math.round(a * 100) / 100;
+          },
+
+          interpolate(x, xValues, yValues) {
+            if (xValues.length !== yValues.length) {
+              throw new Error("Списки x и y должны быть одинаковой длины.");
+            }
+
+            // Если x меньше минимального значения в xValues, вернуть первое значение yValues
+            if (x < xValues[0]) {
+              return yValues[0];
+            }
+
+            // Если x больше максимального значения в xValues, вернуть последнее значение yValues
+            if (x > xValues[xValues.length - 1]) {
+              return yValues[yValues.length - 1];
+            }
+
+            // Линейная интерполяция
+            for (let i = 1; i < xValues.length; i++) {
+              if (xValues[i - 1] <= x && x <= xValues[i]) {
+                const y =
+                  yValues[i - 1] +
+                  ((yValues[i] - yValues[i - 1]) * (x - xValues[i - 1])) /
+                    (xValues[i] - xValues[i - 1]);
+                return y;
+              }
+            }
+            throw new Error("Значение x не удалось интерполировать.");
+          },
+
+          renderMath() {
+            MathJax.typesetPromise();
+          },
+        },
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>

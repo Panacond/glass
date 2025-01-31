@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Список розрахунків</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 40px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 35px;
+            text-align: end;
+            background-color: lightslategrey;
+            border-radius: 10px;
+        }
+
+        .grid {
+            border-radius: 10px;
+
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            background-color: #5aaef3;
+            padding: 10px;
+            border-radius: 20px;
+
+        }
+
+        .grid-item {
+            background-color: rgba(255, 255, 255, 1);
+            border: 1px solid rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            font-size: 25px;
+            text-align: center;
+            border-radius: 10px;
+
+        }
+
+        /* img {
+            width: 100%;
+            border-radius: 5px;
+
+        } */
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Різні розрахунки скла, скопакетів та допоміжні розрахунки</h1>
+
+    <p>Данні розрахунки виконані знаходяться в стадії тестування та можуть мати помилки, якщо ви
+        знайдете їх пишіть нам. <a href="https://t.me/Akakiy_Bedrosovich"><img src="./images/Telegram_logo.svg"
+                alt="telegram" height="15px"></a></p>
+
+    <div class="grid-container">
+        <a class="grid-item" href="./calculations/temperature_loads.html" target="_blank">
+            <!-- <img src="./images/snow.svg" alt="snow"> -->
+            <div>Температурні навантаження на склопакети</div>
+        </a>
+        <a class="grid-item" href="./calculations/Sum_loadsF.html" target="_blank">
+            <!-- <img src="./images/wind2.svg" alt="wind"> -->
+            <div>Збір навантажень на погонний метр ригеля</div>
+        </a>
+        <a class="grid-item" href="./calculations/glass3distribution_loads.html" target="_blank">Pозподіл навантаження
+            між склом різної товщини в тришаровому пакеті</a>
+        <a class="grid-item" href="./calculations/sum_loads_coef_F.html" target="_blank">Збір навантажень на скло</a>
+    </div>
+
+</body>
+
+</html>
