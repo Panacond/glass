@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Расчет стекла</title>
+    <!-- Подключаем MathJax для рендеринга формул -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Подключаем Vue.js -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Стиль формы -->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        margin-right: 10px;
+      }
+      input[type="number"] {
+        width: 100px;
+        padding: 5px;
+      }
+      .formula {
+        font-size: 1.5em;
+        margin-top: 20px;
+      }
+      table {
+        border-collapse: collapse;
+        border: 2px solid rgb(140 140 140);
+        /* font-family: sans-serif; */
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
+
+      caption {
+        padding: 15px;
+        font-weight: bold;
+        font-size: 1.5em;
+      }
+
+      th,
+      td {
+        border: 1px solid rgb(160 160 160);
+        padding: 8px 10px;
+      }
+
+      td {
+        text-align: center;
+      }
+
+      tbody > tr:nth-of-type(even) {
+        background-color: rgb(237 238 242);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="table_glass">
+        <div class="dimention">
+          <table>
+            <caption>
+              Таблица максимальных размеров стеклопакетов
+            </caption>
+            <thead>
+              <tr class="row">
+                <th class="col">Толщина стекла, мм</th>
+                <th class="col">Ширина дистанционной рамки, мм</th>
+                <th class="col">Максимальная высота стекла, мм</th>
+                <th class="col">Максимальная ширина стекла, мм</th>
+                <th class="col">Максимальная площадь, м<sup>2</sup></th>
+                <th class="col">Максимальный размер квадрата, мм</th>
+              </tr>
+            </thead>
+            <tr class="row">
+              <th class="col">3</th>
+              <td class="col">6-16</td>
+              <td class="col">1500</td>
+              <td class="col">1270</td>
+              <td class="col">1.6</td>
+              <td class="col">1270</td>
+            </tr>
+            <tr class="row">
+              <th class="col" rowspan="3">4</th>
+              <td class="col">6</td>
+              <td class="col">2420</td>
+              <td class="col">1300</td>
+              <td class="col">2.86</td>
+              <td class="col">1300</td>
+            </tr>
+            <tr class="row">
+              <td class="col">8-10</td>
+              <td class="col">2440</td>
+              <td class="col">1300</td>
+              <td class="col">3.17</td>
+              <td class="col">1300</td>
+            </tr>
+            <tr class="row">
+              <td class="col">12-20</td>
+              <td class="col">2440</td>
+              <td class="col">1300</td>
+              <td class="col">3.17</td>
+              <td class="col">1300</td>
+            </tr>
+            <tr class="row">
+              <th class="col" rowspan="3">5</th>
+              <td class="col">6</td>
+              <td class="col">3000</td>
+              <td class="col">1750</td>
+              <td class="col">4.0</td>
+              <td class="col">1750</td>
+            </tr>
+            <tr class="row">
+              <td class="col">8-10</td>
+              <td class="col">3000</td>
+              <td class="col">1750</td>
+              <td class="col">4.8</td>
+              <td class="col">2100</td>
+            </tr>
+            <tr class="row">
+              <td class="col">12-20</td>
+              <td class="col">3000</td>
+              <td class="col">1815</td>
+              <td class="col">5.1</td>
+              <td class="col">2100</td>
+            </tr>
+            <tr class="row">
+              <th class="col" rowspan="3">6</th>
+              <td class="col">6</td>
+              <td class="col">3500</td>
+              <td class="col">1980</td>
+              <td class="col">5.88</td>
+              <td class="col">2000</td>
+            </tr>
+            <tr class="row">
+              <td class="col">8-10</td>
+              <td class="col">3500</td>
+              <td class="col">2280</td>
+              <td class="col">7.98</td>
+              <td class="col">2280</td>
+            </tr>
+            <tr class="row">
+              <td class="col">12-20</td>
+              <td class="col">3500</td>
+              <td class="col">2440</td>
+              <td class="col">8.54</td>
+              <td class="col">2440</td>
+            </tr>
+            <tr class="row">
+              <th class="col" rowspan="3">8, 10</th>
+              <td class="col">6</td>
+              <td class="col">3500</td>
+              <td class="col">2000</td>
+              <td class="col">7.00</td>
+              <td class="col">2000</td>
+            </tr>
+            <tr class="row">
+              <td class="col">8-10</td>
+              <td class="col">3500</td>
+              <td class="col">2500</td>
+              <td class="col">8.75</td>
+              <td class="col">2500</td>
+            </tr>
+            <tr class="row">
+              <td class="col">12-20</td>
+              <td class="col">3500</td>
+              <td class="col">2500</td>
+              <td class="col">8.75</td>
+              <td class="col">2500</td>
+            </tr>
+            <tr class="row">
+              <th class="col">12</th>
+              <td class="col">12-20</td>
+              <td class="col">3500</td>
+              <td class="col">2700</td>
+              <td class="col">9.45</td>
+              <td class="col">2700</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="triplex">
+          <p>
+            Многослойное стекло (триплекс) можно заменить стеклом «эквивалентной
+            толщины» соответствующей по механическим свойствам одинарному стеклу
+            (по TRLV-2006):
+          </p>
+          <table>
+            <caption>
+              эквивалентная толщина
+            </caption>
+            <thead>
+              <tr class="row">
+                <th class="col">Многослойное стекло</th>
+                <th class="col">Эквивалентное одинарное стекло (мм)</th>
+              </tr>
+            </thead>
+            <tr class="row">
+              <th class="col">44.1 / 44.2 / 44.4</th>
+              <td class="col">5.04 мм</td>
+            </tr>
+            <tr class="row">
+              <th class="col">55.1 / 55.2 / 55.4</th>
+              <td class="col">6.3 мм</td>
+            </tr>
+            <tr class="row">
+              <th class="col">66.1 / 66.2 / 66.4</th>
+              <td class="col">7.56 мм</td>
+            </tr>
+            <tr class="row">
+              <th class="col">88.1 / 88.2 / 88.4</th>
+              <td class="col">10.08 мм</td>
+            </tr>
+            <tr class="row">
+              <th class="col">1010.1 / 1010.2 / 1010.4</th>
+              <td class="col">12.60 мм</td>
+            </tr>
+            <tr class="row">
+              <th class="col">1212.1 / 1212.2 / 1212.4</th>
+              <td class="col">15.12 мм</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="calculation">
+        <h1>Расчет стекла</h1>
+        <h3>
+          По инструкции по проектированию монтажу и эксплуатации стеклопакетов
+          СН 481-75
+        </h3>
+
+        <div class="form-group">
+          <label for="q">Нагрузка q:</label>
+          <input type="number" v-model="q" id="q" min="0" step="0.1" /><span
+            >Па</span
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="t">Толщина стекла (t):</label>
+          <input type="number" v-model="t" id="t" min="0" step="0.1" /><span
+            >мм</span
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="a">меньший размер (a):</label>
+          <input type="number" v-model="a" id="a" min="0" step="0.1" /><span
+            >мм</span
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="s">больший размер (b):</label>
+          <input type="number" v-model="b" id="b" min="0" step="0.1" /><span
+            >мм</span
+          >
+        </div>
+        <p>Коэффициент для типа стеклопакета со стеклами равной толщины</p>
+        <div id="v-model-radiobutton">
+          <input type="radio" id="one" value="1" v-model="n" />
+          <label for="one">Стекло в одну нитку</label>
+          <input type="radio" id="two" value="0.55" v-model="n" />
+          <label for="two">двухслойный стеклопакет</label>
+          <input type="radio" id="three" value="0.36" v-model="n" />
+          <label for="two">трехслойны стеклопакет</label>
+          <span>n={{ n }}</span>
+        </div>
+        <p
+          v-html="renderFormula('q_p=q \\times n = ' + q +' \\times ' + n +' =' + q_p )"
+        ></p>
+
+        <!-- Вывод формул -->
+        <p>Площадь стекла:</p>
+        <p
+          v-html="renderFormula('A = a \\times b = '+ a + ' \\times ' + b +' \\times\\frac{1}{10^6}= '+ A +' \\text{ м}^2')"
+        ></p>
+        <div>
+          <p>Коэффициент:</p>
+          <div v-if="a > b">
+            <p
+              v-html="renderFormula('\\lambda=\\frac{a}{b}=\\frac{ '+ a + '}{ '+ b +'}= '+ lambda)"
+            ></p>
+          </div>
+          <div v-else>
+            <p
+              v-html="renderFormula('\\lambda=\\frac{b}{a}=\\frac{ '+ b + '}{ '+ a +'}= '+ lambda)"
+            ></p>
+          </div>
+          <p v-if="lambda>5" style="color: red;">отношение размеров не должно быть больше 5</p>
+        </div>
+        <p>3.11 определение коэффициента k по формуле:</p>
+        <p
+          v-html="renderFormula('k = \\frac{q_p}{ (1 + \\lambda^2)^2 \\times E } \\left( \\frac{b}{t} \\right)^4  = \\frac{' + q_p + '}{ (1 + ' + lambda +'^2)^2 \\times '+ E +'  } \\left( \\frac{' + b + '}{' + t +'} \\right)^4 \\times \\frac{1}{10^6}= ' + k )"
+        ></p>
+        <p>пределение коэффициента f/t:</p>
+        <p
+          v-html="renderFormula('\\frac{f}{t} = \\frac{ \\sqrt{5} \\times \\sqrt{ 16 \\times k + 5}-5 }{20}= \\frac{ \\sqrt{5} \\times \\sqrt{ 16 \\times '+ k +'  + 5} -5}{20}=' + f_t)"
+        ></p>
+        <p>
+          3.11 Расчет прочность наружного стекла стеклопакета на изгиб
+          производиться по формуле:
+        </p>
+        <p
+          v-html="renderFormula('E \\left( \\frac{t}{b}  \\right)^2 \\times \\left[ 2.3  \\times \\lambda \\left( \\frac{f}{t}  \\right)^2 + 5.12\\times \\frac{f}{t} (\\lambda^2 +0.22) \\right] \\leq R_s')"
+        ></p>
+        <p
+          v-html="renderFormula('R =' + E + '\\left( \\frac{' + t + '}{' + b +'}  \\right)^2 \\times \\left[ 2.3  \\left(' + f_t + ' \\right)^2 + 5.12\\times ' + f_t + ' (' + lambda + '^2 +0.22) \\right]='+ R +'\\text{ МПа}')"
+        ></p>
+        <p>Прочность сырого стекла R<sub>s</sub>=15 МПа</p>
+        <p
+          v-html="renderFormula('k_s= \\frac{R}{15} =\\frac{' + R +'}{15}= '+ round(R/15))"
+        ></p>
+        <p>Прочность закаленного стекла R<sub>s</sub>=50 МПа</p>
+        <p
+          v-html="renderFormula('k_s= \\frac{R}{30} =\\frac{' + R +'}{50}= '+ round(R/50))"
+        ></p>
+        <p>Прогиб стекла составит:</p>
+        <p
+          v-html="renderFormula('f = \\frac{f}{t} \\times t=' + f_t + '\\times'+ t +'='+ round(f_t*t) +'\\text{ мм}')"
+        ></p>
+        <p>
+          Допустимый прогиб пакета 1/100 меньшей стороны пакета или половина дистанции:
+        </p>
+        <p
+        v-html="renderFormula('f_{dop} = \\frac{a}{100} = \\frac{' + a + '}{100}='+ round(a/100) +'\\text{ мм}')"
+      ></p>
+      <p
+      v-html="renderFormula('k_{f} = \\frac{f}{f_{dop}} = \\frac{' + round(f_t*t) + '}{'+ f_d +'}='+ k_f )"
+    ></p>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, nextTick } = Vue;
+      createApp({
+        data() {
+          return {
+            q: 311,
+            b: 10,
+            t: 5,
+            a: 1000,
+            b: 1800,
+            E: 70000,
+            n: 1,
+          };
+        },
+        methods: {
+          round(a) {
+            return Math.round(a * 100) / 100;
+          },
+          renderFormula(formula) {
+            return `$$${formula}$$`;
+          },
+          renderMath() {
+            nextTick(() => {
+              MathJax.typeset();
+            });
+          },
+        },
+        computed: {
+          q_p() {
+            return this.round(this.q * this.n);
+          },
+          A() {
+            return this.round((this.b * this.a) / 10 ** 6);
+          },
+          lambda() {
+            let l = this.b / this.a;
+            if (this.a > this.b) {
+              l = this.a / this.b;
+            }
+            return this.round(l);
+          },
+          k() {
+            return this.round(
+              ((this.q_p / ((1 + this.lambda ** 2) ** 2 * this.E)) *
+                (this.b / this.t) ** 4) /
+                10 ** 6
+            );
+          },
+          f_t() {
+            return this.round((5 ** 0.5 * (16 * this.k + 5) ** 0.5 - 5) / 20);
+          },
+          R() {
+            return this.round(
+              this.E *
+                (this.t / this.b) ** 2 *
+                (2.3 * this.lambda * this.f_t ** 2 +
+                  5.12 * this.f_t * (this.lambda ** 2 + 0.22))
+            );
+          },
+          f_d(){
+            return this.round( this.a/100)
+          },
+          k_f(){
+            return this.round( this.f_t*this.t/this.f_d )
+          },
+        },
+        watch: {
+          //         [q_p, t, a, b]() {
+          //   this.renderMath();
+          // },
+          q() {
+            this.renderMath();
+          },
+          t() {
+            this.renderMath();
+          },
+          a() {
+            this.renderMath();
+          },
+          b() {
+            this.renderMath();
+          },
+          n() {
+            this.renderMath();
+          },
+        },
+        mounted() {
+          this.renderMath();
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
